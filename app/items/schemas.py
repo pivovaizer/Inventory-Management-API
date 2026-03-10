@@ -1,29 +1,29 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ItemCreate(BaseModel):
-    category: str
-    name: str
-    quantity: int = 0
-    minimum_quantity: int = 0
+    name: str = Field(min_length=1, max_length=100)
+    quantity: int = Field(default=0, ge=0)
+    minimum_quantity: int = Field(default=0, ge=0)
     description: str | None = None
+    category_id: int | None = None
 
 
 class ItemUpdate(BaseModel):
-    category: str | None = None
-    name: str | None = None
-    quantity: int | None = None
-    minimum_quantity: int | None = None
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    quantity: int | None = Field(default=None, ge=0)
+    minimum_quantity: int | None = Field(default=None, ge=0)
     description: str | None = None
+    category_id: int | None = None
 
 
 class ItemResponse(BaseModel):
     id: int
-    category: str
     name: str
     quantity: int
     minimum_quantity: int
     description: str | None = None
+    category_id: int | None = None
 
     class Config:
         from_attributes = True

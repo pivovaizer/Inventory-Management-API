@@ -3,17 +3,22 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.items.models import Item
 from app.items.schemas import ItemCreate, ItemUpdate, ItemResponse
+from app.core.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 router = APIRouter(prefix="/items", tags=["items"])
 
 
 @router.get("/", response_model=list[ItemResponse])
 def get_items(db: Session = Depends(get_db)):
+    logger.info("Fetching all items")
     return db.query(Item).all()
 
 
 @router.get("/to_buy", response_model=list[ItemResponse])
 def get_items_to_buy(db: Session = Depends(get_db)):
+    logger.info("Fetching items to buy")
     return db.query(Item).filter(Item.quantity < Item.minimum_quantity).all()
 
 
@@ -23,6 +28,7 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
+    logger.info(f"Created item with ID {db_item.id}")
     return db_item
 
 
@@ -30,12 +36,14 @@ def create_item(item: ItemCreate, db: Session = Depends(get_db)):
 def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
+        logger.warning("Item with ID %d not found", item_id)
         raise HTTPException(status_code=404, detail="Item not found")
 
     for key, value in item.model_dump(exclude_unset=True).items():
         setattr(db_item, key, value)
     db.commit()
     db.refresh(db_item)
+    logger.info(f"Updated item with ID {db_item.id}")
     return db_item
 
 
@@ -43,9 +51,11 @@ def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db)):
 def delete_item(item_id: int, db: Session = Depends(get_db)):
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
+        logger.warning("Item with ID %d not found", item_id)
         raise HTTPException(status_code=404, detail="Item not found")
     db.delete(db_item)
     db.commit()
+    logger.info(f"Deleted item with ID {db_item.id}")
     return {'detail': 'Item deleted successfully'}
 
 
@@ -53,8 +63,10 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
 def adjust_item_quantity(item_id: int, quantity: int, db: Session = Depends(get_db)):
     db_item = db.query(Item).filter(Item.id == item_id).first()
     if not db_item:
+        logger.warning("Item with ID %d not found", item_id)
         raise HTTPException(status_code=404, detail="Item not found")
     db_item.quantity = quantity
     db.commit()
     db.refresh(db_item)
+    logger.info(f"Adjusted quantity for item with ID {db_item.id} to {db_item.quantity}")
     return db_item

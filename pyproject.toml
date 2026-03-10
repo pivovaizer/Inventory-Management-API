@@ -5,7 +5,14 @@ description = "Cloud inventory management API"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.18.4",
+    "bcrypt==4.0.1",
+    "dcrypt>=0.0.6",
     "fastapi[standard]>=0.135.1",
+    "passlib>=1.7.4",
+    "psycopg2-binary>=2.9.11",
+    "pydantic-settings>=2.13.1",
+    "python-jose>=3.5.0",
     "requests>=2.32.5",
     "sqlalchemy>=2.0.48",
     "uvicorn>=0.41.0",

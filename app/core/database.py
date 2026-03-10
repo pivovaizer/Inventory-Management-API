@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from app.core.config import settings
 
-DATABASE_URL = "sqlite:///./inventory.db"
+engine = create_engine(settings.database_url, connect_args={"check_same_thread": False} if "sqlite" in settings.database_url else {})
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -20,8 +20,3 @@ def get_db():
         db.close()
 
 
-def init_db():
-    from app.items.models import Item  # noqa: F401
-    from app.categories.models import Category  # noqa: F401
-    from app.auth.models import User  # noqa: F401
-    Base.metadata.create_all(bind=engine)
