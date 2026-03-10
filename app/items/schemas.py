@@ -1,21 +1,23 @@
 from pydantic import BaseModel
 
 
-class ItemCreate(BaseModel): # for POST request
+class ItemCreate(BaseModel):
     category: str
     name: str
     quantity: int = 0
     minimum_quantity: int = 0
     description: str | None = None
 
-class ItemUpdate(BaseModel): # for PUT request, all fields are optional to allow partial updates
+
+class ItemUpdate(BaseModel):
     category: str | None = None
     name: str | None = None
     quantity: int | None = None
     minimum_quantity: int | None = None
     description: str | None = None
 
-class ItemResponse(BaseModel): # for GET response
+
+class ItemResponse(BaseModel):
     id: int
     category: str
     name: str
@@ -24,4 +26,4 @@ class ItemResponse(BaseModel): # for GET response
     description: str | None = None
 
     class Config:
-        from_attributes = True # allows Pydantic to read data from SQLAlchemy models using attribute access
+        from_attributes = True
